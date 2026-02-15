@@ -5,7 +5,9 @@ Loads base GPT-OSS model from local HuggingFace snapshot.
 """
 
 import time
+import os
 import torch
+from pathlib import Path
 from typing import Optional, List
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
@@ -13,9 +15,38 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 class MinesweeperAgent(object):
     def __init__(self, **kwargs):
 
-        # 🔥 USE YOUR REAL SNAPSHOT HASH HERE
-        model_name = "/root/.cache/huggingface/hub/models--unsloth--gpt-oss-20b-BF16/snapshots/cc89b3e7fd423253264883a80a4fa5abc619649f"
-
+        # Search for model in priority order:
+        # 1. Environment variable
+        # 2. Local directory relative to this file
+        # 3. Default HF Hub ID
+        
+        default_model_id = "unsloth/gpt-oss-20b-BF16"
+        candidates = []
+        
+        # Check env var
+        import os
+        if "MINESWEEPER_MODEL_PATH" in os.environ:
+            candidates.append(Path(os.environ["MINESWEEPER_MODEL_PATH"]))
+            
+        # Check local models directory
+        local_models = Path(__file__).parent.parent / "models"
+        if local_models.exists():
+            # Look for subdirectories that might be the model
+            for d in local_models.iterdir():
+                if d.is_dir():
+                    candidates.append(d)
+                    
+        # Check standard cache locations (optional, but good for offline if copied)
+        # Windows: %USERPROFILE%/.cache/huggingface/hub/...
+        
+        model_name = default_model_id # Fallback
+        
+        for cand in candidates:
+            if cand.exists():
+                print(f"Found local model at: {cand}")
+                model_name = str(cand)
+                break
+                
         print(f"Loading model from: {model_name}")
 
         self.tokenizer = AutoTokenizer.from_pretrained(

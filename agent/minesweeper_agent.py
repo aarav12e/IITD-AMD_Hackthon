@@ -19,28 +19,31 @@ class MinesweeperPlayer:
     def __init__(self, **kwargs):
         self.agent = MinesweeperAgent(**kwargs)
 
-    def build_prompt(self, game_state: Dict[str, Any]) -> tuple[str, str]:
         """
         Generate prompt for LLM from game state.
-
-        Args:
-            game_state: Dictionary containing board, rows, cols, mines, etc.
-
-        Returns:
-            (prompt, system_prompt)
+        Matches the training notebook format EXACTLY.
         """
-        sys_prompt = "You output JSON actions for Minesweeper. No text, only JSON."
+        # Calculate visible board properties if not provided
+        # (The game_state dict usually comes from the controller/notebook)
+        
+        # Legend and format
+        prompt = f"""
+You are a Minesweeper agent.
 
-        # Ultra-minimal prompt with example showing direct JSON output
-        prompt = f"""You are playing Minesweeper. Analyze the game state and output your next move.
+You must output ONLY valid JSON.
+No explanation.
+No reasoning.
+No extra text.
 
-You must output ONLY a valid JSON object. No explanation, no analysis, no text.
+Output format strictly:
 
-Just output section after assistantfinal and not anything before it in your output.
+{{"type":"reveal","row":X,"col":Y}}
 
-Start your response immediately with {{ and end with }}.
+or
 
-Do NOT output cell which is already revealed or flagged in the current state.
+{{"type":"flag","row":X,"col":Y}}
+
+Start immediately with {{ and end with }}.
 
 Game state:
 {json.dumps(game_state, indent=2)}
@@ -56,7 +59,11 @@ Output your next action as JSON:
 or
 {{"type": "flag", "row": <row_index>, "col": <col_index>}}
 
-Your action:"""
+Your action:
+"""
+        
+        # System prompt (optional, some models ignore it, but we keep it minimal)
+        sys_prompt = "You are a Minesweeper agent. Output ONLY valid JSON."
 
         return prompt, sys_prompt
 
