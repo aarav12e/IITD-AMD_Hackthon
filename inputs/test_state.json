@@ -1,0 +1,21 @@
+root
+
+  board | 3 items
+   0  | 3 items
+    0"."
+    1"."
+    2"."
+  1  | 3 items
+   0"."
+   1"1"
+   2"."
+    2  | 3 items
+0"."
+1"."
+2"."
+
+rows3
+cols3
+mines1
+flags_placed0
+cells_revealed1
