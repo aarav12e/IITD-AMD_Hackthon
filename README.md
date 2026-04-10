@@ -63,4 +63,3 @@ This project demonstrates how LLMs can be adapted to structured decision-making 
   "cells_revealed": 2
 }
 
-IIT delhi
